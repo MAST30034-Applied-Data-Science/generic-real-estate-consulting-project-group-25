@@ -1,89 +1,131 @@
-"""
-A very simple and basic web scraping script. Feel free to
-use this as a source of inspiration, but, make sure to attribute
-it if you do so.
-
-This is by no means production code.
-"""
-# built-in imports
-import re
-from json import dump
-
-from collections import defaultdict
-
-# user packages
+import requests
+import time
+session = requests.Session()
+import pandas as pd
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
+import lxml
+import xml.etree.ElementTree as ET
+from tqdm import tqdm
 
-# constants
-BASE_URL = "https://www.domain.com.au"
-N_PAGES = range(1, 51) # update this to your liking
+HEADERS = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36",
+            "accept": "application/json"}
 
-# begin code
-url_links = []
-property_metadata = defaultdict(dict)
-
-# generate list of urls to visit
-for page in N_PAGES:
-    url = BASE_URL + f"/rent/melbourne-region-vic/?sort=price-desc&page={page}"
-    bs_object = BeautifulSoup(urlopen(url), "lxml")
-
-    # find the unordered list (ul) elements which are the results, then
-    # find all href (a) tags that are from the base_url website.
-    index_links = bs_object \
-        .find(
-            "ul",
-            {"data-testid": "results"}
-        ) \
-        .findAll(
-            "a",
-            href=re.compile(f"{BASE_URL}/*") # the `*` denotes wildcard any
-        )
-
-    for link in index_links:
-        # if its a property address, add it to the list
-        if 'address' in link['class']:
-            url_links.append(link['href'])
+SITEMAP = "https://www.domain.com.au/sitemap-listings-rent.xml"
 
 
-# for each url, scrape some basic metadata
-for property_url in url_links[1:]:
-    bs_object = BeautifulSoup(urlopen(property_url), "lxml")
+def _get_website(seed, json, text):
+    response = session.get(seed, headers=HEADERS)
+    if json:
+        data = response.json()
+    elif text:
+        data = response.text
+    return data
 
-    # looks for the header class to get property name
-    property_metadata[property_url]['name'] = bs_object \
-        .find("h1", {"class": "css-164r41r"}) \
-        .text
 
-    # looks for the div containing a summary title for cost
-    property_metadata[property_url]['cost_text'] = bs_object \
-        .find("div", {"data-testid": "listing-details__summary-title"}) \
-        .text
+def get_write_listing_groups(w_loc="../data/raw/listing_groups.csv"):
+    listings_groups = []
+    try:
+        data = _get_website(SITEMAP, False, True)
+        soup = BeautifulSoup(data, "html.parser")
+        listings_groups = [x.contents[0] for x in soup.find_all('loc')]
+        listings_groups = pd.DataFrame(listings_groups, columns=['links'])
+        listings_groups.to_csv(w_loc)
+    except Exception as e:
+        print(e)
 
-    # extract coordinates from the hyperlink provided
-    # i'll let you figure out what this does :P
-    property_metadata[property_url]['coordinates'] = [
-        float(coord) for coord in re.findall(
-            r'destination=([-\s,\d\.]+)', # use regex101.com here if you need to
-            bs_object \
-                .find(
-                    "a",
-                    {"target": "_blank", 'rel': "noopener noreferer"}
-                ) \
-                .attrs['href']
-        )[0].split(',')
-    ]
+    return listings_groups
 
-    property_metadata[property_url]['rooms'] = [
-        re.findall(r'\d\s[A-Za-z]+', feature.text)[0] for feature in bs_object \
-            .find("div", {"data-testid": "property-features"}) \
-            .findAll("span", {"data-testid": "property-features-text-container"})
-    ]
 
-    property_metadata[property_url]['desc'] = re \
-        .sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
-        .strip('</p>')
+def get_listings_data(loc = "../data/raw/listing_groups.csv"):
+    listings_groups = pd.read_csv(loc)
+    listings = []
+    try:
+        for group in listings_groups['links']:
+            data = _get_website(group, False, True)
+            soup = BeautifulSoup(data, "html.parser")
+            listings.extend([x.contents[0] for x in soup.find_all('loc') if '-vic-' in x.contents[0]])
+    except Exception as e:
+        print(e)
 
-# output to example json in data/raw/
-with open('../data/raw/example.json', 'w') as f:
-    dump(property_metadata, f)
+    return listings
+
+
+def get_datasets(write=False):
+    _ = get_write_listing_groups()
+    listings = pd.DataFrame(get_listings_data(), columns=['links'])
+
+
+    prop_list = []
+    sub_list = []
+    neigh_list = []
+    school_list = []
+    for i in tqdm(range(0, len(listings))):
+        try:
+            # response = session.get(listings['links'][i], headers=HEADERS)
+            # listing_data = response.json()
+            listing_data =_get_website(listings['links'][i], True, False)
+            
+            if ('redirect' in listing_data.keys()):
+                print("Redirected: ", i, listings['links'][i])
+                # response = session.get("https://www.domain.com.au/" + listing_data['redirect']['destination'], headers=HEADERS)
+                # listing_data = response.json()
+
+                listing_data = _get_website("https://www.domain.com.au/" + listing_data['redirect']['destination'], True, False)
+            elif ('props' not in listing_data.keys()):
+                print("No props at index: ", i, listings['links'][i])
+                
+            
+
+            # create property dataset
+            prop_data = listing_data['props']['listingSummary']
+            prop_data.pop("stats", None)
+            prop_data.pop("showDefaultFeatures", None)
+            prop_data.pop("tag", None)
+            prop_data['id'] = listing_data['props']['id']
+            prop_list.append(prop_data)
+
+
+            # create suburb dataset
+            # edit this to add or remove suburb features
+            suburb_keys = ["suburb", "medianRentPrice"]
+
+
+            suburb_data = {key: listing_data['props']['suburbInsights'][key] for key in suburb_keys}
+            suburb_data.update(listing_data['props']['suburbInsights']["demographics"])
+            suburb_data.pop("clarification", None)
+            suburb_data['id'] = listing_data['props']['id']
+            sub_list.append(suburb_data)
+
+
+            # create neighbourhood dataset
+            neighbourhood_data = listing_data['props']['neighbourhoodInsights']
+            neighbourhood_data.pop('map', None)
+            neighbourhood_data.pop('showIncomeAndExpenses', None)
+            neighbourhood_data['id'] = listing_data['props']['id']
+            neigh_list.append(neighbourhood_data)
+
+
+            # create closest school dataset
+            closest_schools = listing_data['props']['schoolCatchment']['schools']
+            top = closest_schools[0]
+            top['id'] = listing_data['props']['id']
+            top.pop("domainSeoUrlSlug", None)
+            top.pop("isRadiusResult", None)
+            school_list.append(top)
+            time.sleep(0.3)
+        except Exception as e:
+            print(e)
+            
+        
+    prop_list = pd.DataFrame(prop_list)
+    sub_list = pd.DataFrame(sub_list)
+    neigh_list = pd.DataFrame(neigh_list)
+    school_list = pd.DataFrame(school_list)
+    if write:
+        prop_list.to_csv('../data/raw/listing_properties.csv')
+        sub_list.to_csv('../data/raw/suburb_stat.csv')
+        neigh_list.to_csv('../data/raw/neigh_stat.csv')
+        school_list.to_csv('../data/raw/closest_school.csv')
+    return prop_list, sub_list, neigh_list, school_list
+
+
