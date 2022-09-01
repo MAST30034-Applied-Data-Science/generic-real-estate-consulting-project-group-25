@@ -78,9 +78,16 @@ def get_datasets(write=False):
 
             # create property dataset
             prop_data = listing_data['props']['listingSummary']
-            prop_data.pop("stats", None)
+            # prop_data.pop("stats", None)
             prop_data.pop("showDefaultFeatures", None)
             prop_data.pop("tag", None)
+
+            stats = listing_data['props']['listingSummary']['stats']
+            for d in stats:
+                stat = {}
+                stat[d['key']] = d['value']
+                prop_data.update(stat)
+
             prop_data['id'] = listing_data['props']['id']
             prop_list.append(prop_data)
 
@@ -129,3 +136,5 @@ def get_datasets(write=False):
     return prop_list, sub_list, neigh_list, school_list
 
 
+prop_list, sub_list, neigh_list, school_list = get_datasets()
+print(prop_list)
