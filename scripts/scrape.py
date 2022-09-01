@@ -78,11 +78,10 @@ def get_datasets(write=False):
 
             # create property dataset
             prop_data = listing_data['props']['listingSummary']
-            # prop_data.pop("stats", None)
             prop_data.pop("showDefaultFeatures", None)
             prop_data.pop("tag", None)
 
-            stats = listing_data['props']['listingSummary']['stats']
+            stats = prop_data.pop("stats", None)
             for d in stats:
                 stat = {}
                 stat[d['key']] = d['value']
@@ -134,3 +133,5 @@ def get_datasets(write=False):
         neigh_list.to_csv('../data/raw/neigh_stat.csv')
         school_list.to_csv('../data/raw/closest_school.csv')
     return prop_list, sub_list, neigh_list, school_list
+
+
