@@ -134,7 +134,3 @@ def get_datasets(write=False):
         neigh_list.to_csv('../data/raw/neigh_stat.csv')
         school_list.to_csv('../data/raw/closest_school.csv')
     return prop_list, sub_list, neigh_list, school_list
-
-
-prop_list, sub_list, neigh_list, school_list = get_datasets()
-print(prop_list)
