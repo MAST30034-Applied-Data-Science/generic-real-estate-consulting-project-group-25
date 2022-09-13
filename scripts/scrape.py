@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup
 import lxml
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
+import random
+import re
+import os
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36",
             "accept": "application/json"}
@@ -135,3 +138,102 @@ def get_datasets(write=False):
     return prop_list, sub_list, neigh_list, school_list
 
 
+
+
+BASE_URL = 'https://www.oldlistings.com.au'
+
+COLUMNS = ['lat', 'long', 'postal_code', 'address', 'beds', 'baths', 'cars', 'type', 'price', 'date']
+
+def get_oldlistings_hrefs():
+    SITEMAP_URL = 'https://www.oldlistings.com.au/site-map?{page}state=VIC'
+    PATTERN = '\/real-estate\/VIC\/\w*\/\d*\/rent\/'
+
+    for i in range(18):
+        print(i)
+        if i != 0:
+            url = SITEMAP_URL.format(page='page='+str(i)+'&')
+        else:
+            url = SITEMAP_URL.format(page='')
+        print(url)
+        resp = requests.get(url=url, headers=HEADERS)
+        urls = re.findall(PATTERN, resp.text)
+        
+        with open('../data/raw/to_scrape_oldlistings.txt', 'a+') as f:
+            for ref in set(urls):
+                f.write(ref)
+                f.write('\n')
+
+        time.sleep(random.randint(2, 5))
+
+
+
+def scrape_suburb(suburb, postal_code):
+    return scrape_from_ref('/real-estate/VIC/'+suburb+'/'+str(postal_code)+'/rent/')
+
+def scrape_from_ref(url, max_depth=0):
+    # if max_depth == 2:
+    #     return pd.DataFrame(columns=COLUMNS)
+    #print(BASE_URL+url)
+    
+    df = pd.DataFrame(columns=COLUMNS)
+
+    try:
+        resp = requests.get(url=BASE_URL+url, headers=HEADERS)
+        soup = BeautifulSoup(resp.text, features="lxml")
+        elems = soup.select('div.property.clearfix')
+        #print(resp.status_code)
+        #print('req url: ', BASE_URL+url)
+        #print(resp.text)
+
+        
+    except Exception as e:
+        print(e)
+        return pd.DataFrame(columns=COLUMNS)
+
+    for elem in elems:
+        lat = elem['data-lat']
+        long = elem['data-lng']
+        postal_code = url.split('/')[4]
+        address = elem.find("h2", {'class': "address"}).text
+        beds = int(elem.find('p', {'class':'property-meta bed'}).text.split(':')[1]) if elem.find('p', {'class':'property-meta bed'}) is not None else -1
+        baths = int(elem.find('p', {'class':'property-meta bath'}).text.split(':')[1]) if elem.find('p', {'class':'property-meta bath'}) is not None else -1
+        cars = int(elem.find('p', {'class':'property-meta car'}).text.split(':')[1]) if elem.find('p', {'class':'property-meta car'}) is not None else -1
+        # cars is nonexisting zometimes
+
+        category = elem.find('p', {'class':'property-meta type'}).text.split(':')[1].strip() if elem.find('p', {'class':'property-meta type'}) is not None else -1
+        last_price = elem.find('section', {'class':'price'}).text.split(':')[1].strip() 
+        historical_prices = [x.find_all(text=True) for x in elem.find('section', {'class':'historical-price'}).find_all('li')]
+        for hist_price in historical_prices:
+            if len(hist_price) == 2:
+                df.loc[len(df)] = lat, long, postal_code, address, beds, baths, cars, category, hist_price[1], hist_price[0]
+
+
+    try:
+        next_url = soup.find_all('li', 'next')[0].a['href']
+        time.sleep(random.random())
+        #print(next_url)
+        df1 = scrape_from_ref(next_url, max_depth+1)
+        return pd.concat([df, df1], ignore_index=True)
+
+    except IndexError as ie:
+        print('done for suburb')
+        return df
+
+        
+
+def scrape_old_listings():
+    with open('../data/raw/to_scrape_oldlistings.txt', 'r') as f:
+        hrefs = [x.strip() for x in f.readlines()]
+
+    if not os.path.exists('../data/raw/oldlistings/'):
+        os.mkdir('../data/raw/oldlistings/')
+
+    for href in tqdm(hrefs):
+        #print(href)
+        df = scrape_from_ref(href)
+        #print(df.shape)
+        df.to_csv('../data/raw/oldlistings/'+href.split('/')[3], index=False, mode='w')
+        time.sleep(random.randint(1, 5))
+        
+
+#scrape_old_listings()
