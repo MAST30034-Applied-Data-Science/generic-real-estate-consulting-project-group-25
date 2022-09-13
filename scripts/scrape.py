@@ -160,7 +160,7 @@ def get_oldlistings_hrefs():
         urls = re.findall(PATTERN, resp.text)
 
         with open('../data/raw/to_scrape_oldlistings.txt', 'a+') as f:
-            for ref in set(urls):
+            for ref in sorted(list(set(urls))):
                 f.write(ref)
                 f.write('\n')
 
@@ -182,9 +182,7 @@ def scrape_from_ref(url, max_depth=0):
         resp = requests.get(url=BASE_URL+url, headers=HEADERS)
         soup = BeautifulSoup(resp.text, features="lxml")
         elems = soup.select('div.property.clearfix')
-        #print(resp.status_code)
-        #print('req url: ', BASE_URL+url)
-        #print(resp.text)
+        print('req url: ', BASE_URL+url, 'status code:', resp.status_code)
 
     except Exception as e:
         print(e)
@@ -195,9 +193,9 @@ def scrape_from_ref(url, max_depth=0):
         long = elem['data-lng']
         postal_code = url.split('/')[4]
         address = elem.find("h2", {'class': "address"}).text
-        beds = int(elem.find('p', {'class': 'property-meta bed'}).text.split(':')[1]) if elem.find('p', {'class': 'property-meta bed'}) is not None else -1
-        baths = int(elem.find('p', {'class': 'property-meta bath'}).text.split(':')[1]) if elem.find('p', {'class': 'property-meta bath'}) is not None else -1
-        cars = int(elem.find('p', {'class': 'property-meta car'}).text.split(':')[1]) if elem.find('p', {'class': 'property-meta car'}) is not None else -1
+        beds = int(float(elem.find('p', {'class': 'property-meta bed'}).text.split(':')[1])) if elem.find('p', {'class': 'property-meta bed'}) is not None else -1
+        baths = int(float(elem.find('p', {'class': 'property-meta bath'}).text.split(':')[1])) if elem.find('p', {'class': 'property-meta bath'}) is not None else -1
+        cars = int(float(elem.find('p', {'class': 'property-meta car'}).text.split(':')[1])) if elem.find('p', {'class': 'property-meta car'}) is not None else -1
         # cars is nonexisting zometimes
 
         category = elem.find('p', {'class': 'property-meta type'}).text.split(':')[
@@ -223,14 +221,16 @@ def scrape_from_ref(url, max_depth=0):
         return df
 
 
-def scrape_old_listings():
+def scrape_old_listings(start_from=1):
+    # start_from is the row on which you wish to start scraping from to_scrape_oldlistings.txt
+
     with open('../data/raw/to_scrape_oldlistings.txt', 'r') as f:
         hrefs = [x.strip() for x in f.readlines()]
 
     if not os.path.exists('../data/raw/oldlistings/'):
         os.mkdir('../data/raw/oldlistings/')
 
-    for href in tqdm(hrefs):
+    for href in tqdm(hrefs[start_from-1:]):
         #print(href)
         df = scrape_from_ref(href)
         #print(df.shape)
@@ -239,4 +239,4 @@ def scrape_old_listings():
         time.sleep(random.randint(1, 5))
 
 
-#scrape_old_listings()
+
