@@ -138,11 +138,22 @@ def get_datasets(write=False):
     return prop_list, sub_list, neigh_list, school_list
 
 
-
-
 BASE_URL = 'https://www.oldlistings.com.au'
 
 COLUMNS = ['lat', 'long', 'postal_code', 'address', 'beds', 'baths', 'cars', 'type', 'price', 'date']
+USER_AGENTS = [x.strip() for x in open('../data/user_agents.txt', 'r')]
+
+request_counter = 0
+
+
+class TooManyRequestsError(RuntimeError):
+    pass
+
+
+def get_random_user_agent_header():
+    return {
+        'User-Agent': random.choice(USER_AGENTS)
+    }
 
 
 def get_oldlistings_hrefs():
@@ -172,6 +183,7 @@ def scrape_suburb(suburb, postal_code):
 
 
 def scrape_from_ref(url, max_depth=0):
+    global request_counter
     # if max_depth == 2:
     #     return pd.DataFrame(columns=COLUMNS)
     #print(BASE_URL+url)
@@ -179,11 +191,17 @@ def scrape_from_ref(url, max_depth=0):
     df = pd.DataFrame(columns=COLUMNS)
 
     try:
-        resp = requests.get(url=BASE_URL+url, headers=HEADERS)
+        resp = requests.get(
+            url=BASE_URL+url, headers=get_random_user_agent_header())
         soup = BeautifulSoup(resp.text, features="lxml")
         elems = soup.select('div.property.clearfix')
+        request_counter += 1
         print('req url: ', BASE_URL+url, 'status code:', resp.status_code)
-
+        if resp.status_code == 403:
+            raise TooManyRequestsError(
+                f"Forbidden after {request_counter} requests")
+    except TooManyRequestsError:
+        raise  # to stop putting out requests to the server
     except Exception as e:
         print(e)
         return pd.DataFrame(columns=COLUMNS)
@@ -211,7 +229,7 @@ def scrape_from_ref(url, max_depth=0):
 
     try:
         next_url = soup.find_all('li', 'next')[0].a['href']
-        time.sleep(random.random())
+        time.sleep(random.random()*5) # sleep around 2.5 seconds between each request
         #print(next_url)
         df1 = scrape_from_ref(next_url, max_depth+1)
         return pd.concat([df, df1], ignore_index=True)
@@ -236,7 +254,7 @@ def scrape_old_listings(start_from=1):
         #print(df.shape)
         df.to_csv('../data/raw/oldlistings/' +
                   href.split('/')[3], index=False, mode='w')
-        time.sleep(random.randint(1, 5))
+        time.sleep(random.randint(10, 15))
 
 
 
