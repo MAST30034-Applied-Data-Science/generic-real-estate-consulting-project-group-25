@@ -116,11 +116,15 @@ def get_datasets(write=False):
 
             # create closest school dataset
             closest_schools = listing_data['props']['schoolCatchment']['schools']
-            top = closest_schools[0]
-            top['id'] = listing_data['props']['id']
-            top.pop("domainSeoUrlSlug", None)
-            top.pop("isRadiusResult", None)
-            school_list.append(top)
+            for school in closest_schools:
+                school.pop("domainSeoUrlSlug", None)
+                school.pop("isRadiusResult", None)
+                school['listing_id'] = listing_data['props']['id']
+            # top = closest_schools[0]
+            # top['id'] = listing_data['props']['id']
+            # top.pop("domainSeoUrlSlug", None)
+            # top.pop("isRadiusResult", None)
+            school_list.extend(closest_schools)
             time.sleep(0.3)
         except Exception as e:
             print(e)
@@ -229,7 +233,7 @@ def scrape_from_ref(url, max_depth=0):
 
     try:
         next_url = soup.find_all('li', 'next')[0].a['href']
-        time.sleep(random.random()*5) # sleep around 2.5 seconds between each request
+        time.sleep(random.randint(5,15)) 
         #print(next_url)
         df1 = scrape_from_ref(next_url, max_depth+1)
         return pd.concat([df, df1], ignore_index=True)
