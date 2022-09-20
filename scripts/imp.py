@@ -64,14 +64,15 @@ def linear_imp(cleaned_monetary_data, write = False):
     # final_rows['Suburb'] = sub
 
     final_rows['Suburb'] = cleaned_monetary_data.loc[:,'Suburb'].tolist()
+    final_rows['Postcode'] = cleaned_monetary_data.loc[:,'Postcode'].tolist()
     if (write == True):
         final_rows.to_csv('../data/curated/all_imputed_monetary_data.csv', index=False)
     return final_rows
 
 
 
-# cleaned_monetary_data = pd.read_csv('../data/curated/cleaned_monetary_data.csv')
-# # print(cleaned_monetary_data.loc[:,'Suburb'])
-# final = linear_imp(cleaned_monetary_data)
+cleaned_monetary_data = pd.read_csv('../data/curated/cleaned_monetary_data.csv')
+# print(cleaned_monetary_data.loc[:,'Suburb'])
+final = linear_imp(cleaned_monetary_data)
 # final['Suburb'] = cleaned_monetary_data.loc[:,'Suburb'].tolist()
-# final.to_csv('../data/curated/all_imputed_monetary_data.csv', index=False)
+final.to_csv('../data/curated/all_imputed_monetary_data.csv', index=False)
