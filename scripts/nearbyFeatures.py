@@ -37,7 +37,7 @@ def getNearestStation(lat_lst, lng_lst, lat, lng, radius = 1000):
     overpass_query = f"""
     [out:json];
     (node(around:{radius},{lat},{lng})["railway"="station"];
-    (node(around:{radius},{lat},{lng})["railway"="stop"]
+    (node(around:{radius},{lat},{lng})["railway"="stop"];
     );
     out;
     """
