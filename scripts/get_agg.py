@@ -26,6 +26,6 @@ def get_agg(write = False):
         
     agg_bed_avgPrice_sub['median'] = median
     if write == True:
-        agg_bed_avgPrice_sub.to_csv('../data/curated/2022_aggregated/agg_bed_avgPrice_sub.csv')
+        agg_bed_avgPrice_sub.to_csv('../data/curated/2022_aggregated/agg_bed_avgPrice_sub.csv', index = False)
 
     return agg_bed_avgPrice_sub
