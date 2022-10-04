@@ -20,8 +20,8 @@ def getAllStation(box = "-39.192401, 141.028939, -34.005138, 151.077642"):
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
     [out:json];
-    (node["railway"="station"]({box});
-    node["railway"="stop"]({box});
+    (node[railway=station]({box});
+    node[railway=stop]({box});
     );
     out;
     """
