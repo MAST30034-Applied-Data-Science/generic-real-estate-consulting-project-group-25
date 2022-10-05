@@ -74,6 +74,7 @@ def dist_between_two_lat_lon(lat1, lat2, long1, long2, method = "driving-car"):
         return response.json()["features"][0]["properties"]["segments"][0]["distance"]
     except KeyError:
         return 100000
+        
 def assign_closest_location(rent, ext, ext_name, rent_cor_col, ext_cor_col):
     import numpy as np
     func = lambda x: find_closest_location(x, ext, rent_cor_col, ext_cor_col)
