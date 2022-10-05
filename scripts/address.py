@@ -43,10 +43,10 @@ def dist_between_two_lat_lon(lat1, lat2, long1, long2, method = "driving-car"):
 
 #Get the closest location to a given house in rent dataset. 
 #Provided that external data and rent data already have geocord as column
-def find_closest_location(rent_lat, rent_long, ext_data, ext_lat_col, ext_lon_col):
-    ext_data["cords"] = ext_data[[ext_lat_col, ext_lon_col]].values.tolist()
+def find_closest_location(rent_lat, rent_long, ext_data, ext_lat_col, ext_lon_col, name_col):
+    ext_data["cords"] = ext_data[[ext_lat_col, ext_lon_col, name_col]].values.tolist()
     closest = min(ext_data["cords"], key=lambda x: dist_between_two_lat_lon(rent_lat, x[0], rent_long, x[1]))
-    return dist_between_two_lat_lon(rent_lat, closest[0], rent_long, closest[1]), closest
+    return dist_between_two_lat_lon(rent_lat, closest[0], rent_long, closest[1]), closest[2]
 
 
 def assign_closest_location(rent, ext, ext_name, rent_cor_col, ext_cor_col):
