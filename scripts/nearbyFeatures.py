@@ -16,19 +16,17 @@ def nearbyFeatures(lat, lng, radius, type: str, amenity:str):
 
     return data
 
-def getAllStation(box = "-39.192401, 141.028939, -34.005138, 151.077642"):
+def getAllFeatures(key, value, box = "-39.192401, 141.028939, -34.005138, 151.077642"):
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
     [out:json];
-    (node[railway=station]({box});
-    node[railway=stop]({box});
+    (node[{key}={value}]({box});
     );
     out;
     """
     response = requests.get(overpass_url, 
                             params={'data': overpass_query})
     data = response.json()
-
     return data
 
 def getNearestStation(lat_lst, lng_lst, lat, lng, radius = 1000):
