@@ -1,0 +1,1 @@
+data = read.csv(file="../data/curated/listings_with_distances.csv")
