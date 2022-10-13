@@ -12,7 +12,7 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit
 
 SITEMAP = "https://www.domain.com.au/sitemap-listings-rent.xml"
 
-
+"""Function to get data from json response."""
 def _get_website(seed, json, text):
     response = session.get(seed, headers=HEADERS)
     if json:
@@ -21,7 +21,7 @@ def _get_website(seed, json, text):
         data = response.text
     return data
 
-
+"""Function to get all listing endpoints"""
 def get_write_listing_groups(w_loc="../data/raw/listing_groups.csv"):
     listings_groups = []
     try:
@@ -35,7 +35,7 @@ def get_write_listing_groups(w_loc="../data/raw/listing_groups.csv"):
 
     return listings_groups
 
-
+"""Function returns all enpoints of listings of interest """
 def get_listings_data(loc = "../data/raw/listing_groups.csv"):
     listings_groups = pd.read_csv(loc)
     listings = []
@@ -49,7 +49,7 @@ def get_listings_data(loc = "../data/raw/listing_groups.csv"):
 
     return listings
 
-
+"""Function to get dataset from provided endpoints."""
 def get_datasets(write=False):
     _ = get_write_listing_groups()
     listings = pd.DataFrame(get_listings_data(), columns=['links'])
@@ -61,14 +61,12 @@ def get_datasets(write=False):
     school_list = []
     for i in tqdm(range(0, len(listings))):
         try:
-            # response = session.get(listings['links'][i], headers=HEADERS)
-            # listing_data = response.json()
+
             listing_data =_get_website(listings['links'][i], True, False)
             
             if ('redirect' in listing_data.keys()):
                 print("Redirected: ", i, listings['links'][i])
-                # response = session.get("https://www.domain.com.au/" + listing_data['redirect']['destination'], headers=HEADERS)
-                # listing_data = response.json()
+
 
                 listing_data = _get_website("https://www.domain.com.au/" + listing_data['redirect']['destination'], True, False)
             elif ('props' not in listing_data.keys()):
@@ -92,7 +90,6 @@ def get_datasets(write=False):
 
 
             # create suburb dataset
-            # edit this to add or remove suburb features
             suburb_keys = ["suburb", "medianRentPrice"]
 
 

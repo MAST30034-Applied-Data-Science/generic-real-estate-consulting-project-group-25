@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 COL = ['Median_age_persons', 'Median_mortgage_repay_monthly', 'Median_tot_prsnl_inc_weekly', 'Median_rent_weekly', 'Median_tot_fam_inc_weekly',
       'Average_num_psns_per_bedroom', 'Average_household_size']
 
-
+"""Function that performs linear imputation"""
 def linear_imp(cleaned_monetary_data, write = False):
     final_rows = pd.DataFrame()
     yrs = [2012,2013,2014,2015,2017,2018,2019,2020]
@@ -71,8 +71,10 @@ def linear_imp(cleaned_monetary_data, write = False):
 
 
 
-cleaned_monetary_data = pd.read_csv('../data/curated/cleaned_monetary_data.csv')
-# print(cleaned_monetary_data.loc[:,'Suburb'])
-final = linear_imp(cleaned_monetary_data)
-# final['Suburb'] = cleaned_monetary_data.loc[:,'Suburb'].tolist()
-final.to_csv('../data/curated/all_imputed_monetary_data.csv', index=False)
+if __name__ == "__main__":
+    cleaned_monetary_data = pd.read_csv('../data/curated/cleaned_monetary_data.csv')
+    # print(cleaned_monetary_data.loc[:,'Suburb'])
+    final = linear_imp(cleaned_monetary_data)
+    # final['Suburb'] = cleaned_monetary_data.loc[:,'Suburb'].tolist()
+    final.to_csv('../data/curated/all_imputed_monetary_data.csv', index=False)
+
