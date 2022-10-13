@@ -27,42 +27,34 @@ def addressToCords(address: str):
     except AttributeError:   
         return "Requires Manual Inspection"
 
-def find_min_dist(lat, lng, ext_data, ext_lat_col, ext_lng_col, ext_name_col, method = "driving-car"):
+def find_closest_location(rent_lat, rent_long, ext_data, ext_lat_col, ext_lon_col, name_col):
     """
     Find the closest driving distance between a starting coordinate and a list of destination coordinates
     This code requires an local OpenRouteService core service running simultaneously 
     Refer to: https://giscience.github.io/openrouteservice/ fpor instructions on installation and usuage
 
-    lat: latitude of starting coordinate
-    lng: longitude of starting coordinate 
+    rent_lat: latitude of starting coordinate
+    rent_lng: longitude of starting coordinate 
     ext_data: a pandas dataframe containing the destinations and their geocordinates
     ext_lat_col: column name of ext_data that stores latitude
     ext_lng_col: column name of ext_data that stores longitude 
-    ext_name_col: column name of ext_data that stores the name of the destination
+    name_col: column name of ext_data that stores the name of the destination
     """ 
-
-    sources = [[lng, lat]]
-    # Getting the distance into the required format
-    for i in range(0, len(ext_data)):
-        lng_ext = ext_data[ext_lng_col][i] 
-        lat_ext = ext_data[ext_lat_col][i]
-        sources.append([lng_ext, lat_ext])        
-    data = {
-                "locations":sources,
-                "destinations":[0],
-                "metrics":["distance"],
-                "sources":[x for x in range(1, len(sources))]
-            }
-    response = requests.post(f"http://localhost:8080/ors/v2/matrix/{method}", json = data)
-    result = response.json()["distances"]
-    
-    dst = min(result)
-    loc = ext_data[ext_name_col][result.index(dst)]
-
-    return dst, loc
+    ext_data["cords"] = ext_data[[ext_lat_col, ext_lon_col, name_col]].values.tolist()
+    closest = min(ext_data["cords"], key=lambda x: dist_between_two_lat_lon(rent_lat, x[0], rent_long, x[1]))
+    return dist_between_two_lat_lon(rent_lat, closest[0], rent_long, closest[1]), closest[2]
 
 
-
+def dist_between_two_lat_lon(lat1, lat2, long1, long2, method = "driving-car"):
+    """
+    Finding the distance between any two given corrdinates
+    """
+    response = requests.get(f"http://localhost:8080/ors/v2/directions/{method}?&start={long1},{lat1}&end={long2},{lat2}")
+    try:
+        return response.json()["features"][0]["properties"]["segments"][0]["distance"]
+    # Assign a value if the distance is too far away, and is inappropriate to assume that the residence will use this facility
+    except KeyError:
+        return 100000
 
 
 
