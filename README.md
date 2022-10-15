@@ -10,7 +10,9 @@ All commands are assumed to be run from the root folder if not specified otherwi
 Note: 2 and 3 require order through email, ESRI shapefile format was used for all regions of Victoria.
 
 ## External APIs Used:
-1. Open Route Service: A Local backend was setup to avoid call limitations of the API. Follow [here](https://giscience.github.io/openrouteservice/installation/Installation-and-Usage.html) for a detailed description on how to set up the backend service. [OSM Data](http://download.geofabrik.de/australia-oceania/australia.html) and [GitHub Repo](https://github.com/GIScience/openrouteservice) are required for set-up. 
+1. Open Route Service: A Local backend was setup to avoid call limitations of the API. Follow [here](https://giscience.github.io/openrouteservice/installation/Installation-and-Usage.html) for a detailed description on how to set up and use the backend service. [OSM Data](http://download.geofabrik.de/australia-oceania/australia.html) and [GitHub Repo](https://github.com/GIScience/openrouteservice) are required for set-up. 
+
+2. Overpass API, Nominatim API (Public, doesn't require API key)
 
 
 ## Scraping
