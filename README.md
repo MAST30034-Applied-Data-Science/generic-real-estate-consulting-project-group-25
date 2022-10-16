@@ -14,6 +14,16 @@ Note: 2 and 3 require order through email, ESRI shapefile format was used for al
 
 2. Overpass API, Nominatim API (Public, doesn't require API key)
 
+## Overview of Notebooks
+1. Scraping, scraping_old_listing, getparks - Scrapes listing and external datasets.
+
+2. Preprocessing, addressConv, routeCalc - Cleaning and Feature Engineering of listing and external datasets.
+
+3. Analysis, Distance Analysis, Ext_Analysis - analysis of internal and external feature datasets.
+
+4. Prediction  - Forecasting model for median rental price.
+
+5. **Summary** - Overview of entire project.
 
 ## Scraping
 1. Please download the `useragents.txt` (provided under MIT License) in the following way:
