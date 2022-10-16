@@ -1,5 +1,5 @@
 # Generic Real Estate Consulting Project
-All commands are assumed to be run from the root folder if not specified otherwise.
+All commands are assumed to be run from the root folder if not specified otherwise. Some plots have difficulties rendering when viewed from the web version of GitHub. Therefore, it is recommended to use Visual Studio Code, as plots render as required.
 
 ## External Datasets Used:
 (DataVic)
@@ -28,6 +28,7 @@ Note: 1 and 2 require order through email, Data format: ESRI shapefile, geograph
 5. **Summary** - Overview of the entire project.
 
 ## Required data
+0. Please create an environment with Python 3.8 or Python 3.10 installed and install the needed libraries from requirements.txt.
 1. Please download the `useragents.txt` (provided under MIT License) in the following way:
     ```shell
     cd data
