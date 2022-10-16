@@ -110,7 +110,7 @@ def load_data(year=2027):
 
 
 # Set bokeh to save file
-def create_map(plotted_price='1_flat', year=2027, filename="DEFAULT"):
+def create_map(plotted_price: str = '1_flat', year: int = 2027, filename: str = "DEFAULT"):
     """Creating the visualisations
 
     :param gdf: Dataframe to visualise
@@ -141,10 +141,10 @@ def create_map(plotted_price='1_flat', year=2027, filename="DEFAULT"):
     y_range = (-4635000.0, -4485000.0)
     p = figure(x_range=x_range, y_range=y_range,
                x_axis_type="mercator", y_axis_type="mercator",
-               plot_height=600, plot_width=600,
+               plot_height=700, plot_width=700,
                match_aspect=True,)
     p.add_tile(tile_provider)
-    p.title.text = f"Predicted median price per suburb for {plotted_price.split('_')[0]} bed {plotted_price.split('_')[1]} (AUD)"
+    p.title.text = f"Predicted median price per suburb for {plotted_price.split('_')[0]} bed {plotted_price.split('_')[1]} in {year} (AUD)"
     p.title.align = "center"
     p.title.text_font_size = "17px"
 
