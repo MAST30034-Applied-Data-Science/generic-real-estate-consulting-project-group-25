@@ -1,6 +1,12 @@
 # Generic Real Estate Consulting Project
 All commands are assumed to be run from the root folder if not specified otherwise.
 
+Bokeh and the jupyter extension of vscode do not get along, especially the show(p) command. To fix this, there are no good ways, only workarounds.
+    - putting ; after show(p) to prevent it from rendering in the notebook and looking at the generated map from a normal browser
+    - running `jupyter notebook --no-browser --port=8889` in the terminal and then using it from the browser
+
+All commands are assumed to be run from the root folder if not specified otherwise.
+
 ## External Datasets Used:
 (DataVic)
 1. [Victoria Locality (Suburb) Data](https://data.gov.au/dataset/ds-dga-af33dd8c-0534-4e18-9245-fc64440f742e/details) 
