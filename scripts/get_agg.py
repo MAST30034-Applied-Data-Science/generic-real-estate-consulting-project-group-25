@@ -1,14 +1,22 @@
 import pandas as pd
-import seaborn as sns
-import re
 from pandasql import sqldf
 import statistics
 from tqdm import tqdm
-pysqldf = lambda q: sqldf(q, globals())
+
+
+def pysqldf(q):
+    return sqldf(q, globals())
+
+
 prop = pd.read_csv('../data/curated/cleaned_property_listing_data.csv')
 
-"""Returns property listing data aggregated base on type of rental property in each suburb"""
-def get_agg(write = False):
+
+def get_agg(write=False):
+    """Returns property listing data aggregated base on type of rental property in each suburb""
+
+    :param write: save file to ../data/curated/2022_aggregated/agg_bed_avgPrice_sub.csv, defaults to False
+    :return: pandas dataframe 
+    """
     query = """SELECT beds, avg(price) as avg_price, count(beds) as count, propertyType, suburb
             FROM prop 
             GROUP BY beds, propertyType, suburb"""
@@ -23,9 +31,9 @@ def get_agg(write = False):
                 all_values.append(float(prop['price'][i]))
         median.append(statistics.median(all_values))
 
-        
     agg_bed_avgPrice_sub['median'] = median
     if write == True:
-        agg_bed_avgPrice_sub.to_csv('../data/curated/2022_aggregated/agg_bed_avgPrice_sub.csv', index = False)
+        agg_bed_avgPrice_sub.to_csv(
+            '../data/curated/2022_aggregated/agg_bed_avgPrice_sub.csv', index=False)
 
     return agg_bed_avgPrice_sub
