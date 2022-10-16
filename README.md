@@ -12,7 +12,7 @@ All commands are assumed to be run from the root folder if not specified otherwi
 Note: 1 and 2 require order through email, Data format: ESRI shapefile, geographical data from 2020, No buffer for all regions of Victoria.
 
 ## External APIs Used:
-1. Open Route Service: A Local backend was setup to avoid call limitations of the API. Follow [here](https://giscience.github.io/openrouteservice/installation/Installation-and-Usage.html) for a detailed description on how to set up and use the backend service. [OSM Data](http://download.geofabrik.de/australia-oceania/australia.html) and [GitHub Repo](https://github.com/GIScience/openrouteservice) are required for set-up. 
+1. Open Route Service: A Local backend was setup to avoid call limitations of the API. Follow [here](https://giscience.github.io/openrouteservice/installation/Installation-and-Usage.html) for a detailed description of how to set up and use the backend service. [OSM Data](http://download.geofabrik.de/australia-oceania/australia.html) and [GitHub Repo](https://github.com/GIScience/openrouteservice) are required for set-up. 
 
 2. Overpass API, Nominatim API (Public, doesn't require API key)
 
@@ -34,8 +34,8 @@ Note: 1 and 2 require order through email, Data format: ESRI shapefile, geograph
     wget https://raw.githubusercontent.com/DavidWittman/requests-random-user-agent/master/requests_random_user_agent/useragents.txt
     cd ..
     ```
-2. Run the notebook `Scrape.ipynb` or directly from the command line `cd scripts/ && python scrape.py`{:.language-shell}
-3. Visualisation requires shapefiles from Victorian government
+2. Run the notebook `Scrape.ipynb` or directly from the command line `cd scripts/ && python scrape.py` to get the scraped properties.
+3. Visualisation requires shapefiles from the Australian government:
     ````shell
     mkdir -p './data/raw/Suburb Shapes' && cd './data/raw/Suburb Shapes'
     wget https://data.gov.au/data/dataset/af33dd8c-0534-4e18-9245-fc64440f742e/resource/4494abe0-64ea-4fa6-931a-d1a389a14e57/download/vic_localities.zip -O temp.zip
@@ -44,3 +44,4 @@ Note: 1 and 2 require order through email, Data format: ESRI shapefile, geograph
     pwd
     cd ../../..
     ```
+4. Some data was obtained and joined via hand.
