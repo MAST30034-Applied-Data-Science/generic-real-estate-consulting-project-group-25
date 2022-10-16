@@ -4,6 +4,8 @@ import re
 def back_ward_elim(dataframe):
     """
     Performs backward elimination, by recursively omitting the feature with the highest p-value
+    :param dataframe: Pandas dataframe containing the data you want to evaluate
+    return: final model after feature selection and it's anova
     """
     P_VALUE = 0.05
     stats_query = "price~ave_dist_3_schools+Suburb+closest_school+ClosestDstToShoppingCentre+DstToCBD+ClosestDstToStation+ClosestDstToUni+age0To19+age20To39+age40To59+age60Plus+longTermResident+owner+renter+family+single"

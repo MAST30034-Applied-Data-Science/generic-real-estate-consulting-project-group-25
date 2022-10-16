@@ -6,6 +6,7 @@ def getAllFeatures(key:str, value:str, box = "-39.192401, 141.028939, -34.005138
     (The default bounding box includes whole of Victoria and partial NSW)
     
     key, value: plug in values based on: https://wiki.openstreetmap.org/wiki/Key:amenity
+    return: List of corresponding features in json file format
     """
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
