@@ -3,13 +3,15 @@ All commands are assumed to be run from the root folder if not specified otherwi
 
 ## External Datasets Used:
 (DataVic)
-1. [Victoria Local Government Area (Local Cities/Councils) Data](https://datashare.maps.vic.gov.au/search?md=bc822a9c-3766-57ac-a034-bcad3fb66d86)
-    * Projection: Geographicals on GDA2020
-    * Buffer: no buffer
-    * Format: ESRi shape file
-2. Victoria Train Stations Data: [Metro](https://discover.data.vic.gov.au/dataset/ptv-metro-train-stations), [Vline](https://discover.data.vic.gov.au/dataset/ptv-regional-train-stations)
+1. [Vicotria Suburb Data](https://data.gov.au/data/dataset/af33dd8c-0534-4e18-9245-fc64440f742e/resource/4494abe0-64ea-4fa6-931a-d1a389a14e57/download/vic_localities.zip)
+2. [Victoria Local Government Area (Local Cities/Councils) Data](https://datashare.maps.vic.gov.au/search?md=bc822a9c-3766-57ac-a034-bcad3fb66d86)
+3. Victoria Train Stations Data: [Metro](https://discover.data.vic.gov.au/dataset/ptv-metro-train-stations), [Vline](https://discover.data.vic.gov.au/dataset/ptv-regional-train-stations)
 
-Note: 1 and 2 require order through email, Data format: ESRI shapefile, geographical data from 2020, No buffer for all regions of Victoria.
+Note: For 2 and 3
+ * Projection: Geographicals on GDA2020
+ * Buffer: no buffer
+ * Format: ESRi shape file
+
 
 ## External APIs Used:
 1. Open Route Service: A Local backend was setup to avoid call limitations of the API. Follow [here](https://giscience.github.io/openrouteservice/installation/Installation-and-Usage.html) for a detailed description of how to set up and use the backend service. [OSM Data](http://download.geofabrik.de/australia-oceania/australia.html) and [GitHub Repo](https://github.com/GIScience/openrouteservice) are required for set-up. 
