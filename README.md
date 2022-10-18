@@ -48,3 +48,7 @@ Note: For 2 and 3
     cd ../../..
     ```
 4. Some data was obtained and joined via hand.
+
+## Note to tutors:
+* Data produced in the process can be found in [Google Drive](https://drive.google.com/drive/folders/1ZJN1-Qbp9L9iqwoMtGhii0ioXq_E_-_0?usp=sharing):
+
